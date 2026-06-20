@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: maxTokens || 800 }
+        generationConfig: { maxOutputTokens: maxTokens || 2048 }
       })
     });
 
