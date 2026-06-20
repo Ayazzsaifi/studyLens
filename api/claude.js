@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     const { prompt, maxTokens } = req.body;
     if (!prompt) return res.status(400).json({ error: 'Missing "prompt" in request body.' });
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
