@@ -3,8 +3,8 @@
 // Redirects to login if not authenticated, shows user info + logout in topbar
 
 (async () => {
-  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  const SUPABASE_URL = 'https://ktaatiqlcofsvsdvjlgm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0YWF0aXFsY29mc3ZzZHZqbGdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NTMwMTMsImV4cCI6MjA5NzUyOTAxM30.UMVVlABIKxrswLvO2nisNdpId-6U2KJoXLLePtHHJlY';
 
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
