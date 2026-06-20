@@ -1,0 +1,9 @@
+{
+  "name": "studylens",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered study platform (Claude API)",
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}
