@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyLens — Login</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  .auth-wrap {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 20px;
+  }
+  .auth-card {
+    width: 100%; max-width: 420px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 40px 36px;
+  }
+  .auth-logo { text-align: center; margin-bottom: 32px; }
+  .auth-logo .icon { font-size: 40px; margin-bottom: 10px; }
+  .auth-logo h1 { font-size: 24px; margin-bottom: 4px; }
+  .auth-logo p { color: var(--text2); font-size: 14px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 6px; }
+  .field input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 11px 14px; color: var(--text);
+    font-size: 14px; font-family: var(--font); transition: .15s;
+  }
+  .field input:focus { outline: none; border-color: var(--accent); }
+  .auth-btn {
+    width: 100%; padding: 12px; border-radius: 10px; font-size: 14px;
+    font-weight: 600; cursor: pointer; border: none;
+    background: var(--accent); color: #fff; font-family: var(--font);
+    margin-top: 4px; transition: .15s;
+  }
+  .auth-btn:hover { opacity: .9; }
+  .auth-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .auth-switch { text-align: center; margin-top: 18px; font-size: 13px; color: var(--text2); }
+  .auth-switch a { color: var(--accent); cursor: pointer; text-decoration: none; }
+  .auth-switch a:hover { text-decoration: underline; }
+  .auth-error {
+    display: none; background: rgba(248,113,113,.1); border: 1px solid var(--danger);
+    border-radius: 10px; padding: 10px 14px; font-size: 13px;
+    color: var(--danger); margin-bottom: 18px;
+  }
+  .auth-success {
+    display: none; background: rgba(52,211,153,.1); border: 1px solid var(--green);
+    border-radius: 10px; padding: 10px 14px; font-size: 13px;
+    color: var(--green); margin-bottom: 18px;
+  }
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .verify-icon { font-size: 48px; text-align: center; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      <div class="icon">📚</div>
+      <h1>StudyLens</h1>
+      <p id="auth-subtitle">Sign in to your account</p>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+    <div id="auth-success" class="auth-success"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="form-login">
+      <div class="field">
+        <label>Email</label>
+        <input id="login-email" type="email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="login-password" type="password" placeholder="••••••••">
+      </div>
+      <button id="btn-login" class="auth-btn" onclick="handleLogin()">Sign In</button>
+      <div class="auth-switch">
+        Don't have an account? <a onclick="showSignup()">Sign Up</a>
+      </div>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="form-signup" style="display:none;">
+      <div class="field">
+        <label>Email</label>
+        <input id="su-email" type="email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="su-password" type="password" placeholder="Min 6 characters">
+      </div>
+      <div class="field" style="margin-bottom:20px;">
+        <label>Confirm Password</label>
+        <input id="su-confirm" type="password" placeholder="Repeat password">
+      </div>
+      <button id="btn-signup" class="auth-btn" onclick="handleSignup()">Create Account</button>
+      <div class="auth-switch">
+        Already have an account? <a onclick="showLogin()">Sign In</a>
+      </div>
+    </div>
+
+    <!-- VERIFY EMAIL -->
+    <div id="form-verify" style="display:none; text-align:center;">
+      <div class="verify-icon">📧</div>
+      <h2 style="margin-bottom:10px;">Check your email</h2>
+      <p class="muted" style="margin-bottom:20px;">
+        We sent a confirmation link to your email.<br>
+        Click it, then come back here to sign in.
+      </p>
+      <button class="auth-btn" onclick="showLogin()">Back to Sign In</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://ktaatiqlcofsvsdvjlgm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0YWF0aXFsY29mc3ZzZHZqbGdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NTMwMTMsImV4cCI6MjA5NzUyOTAxM30.UMVVlABIKxrswLvO2nisNdpId-6U2KJoXLLePtHHJlY';
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Already logged in? Go to app
+  sb.auth.getSession().then(({ data }) => {
+    if (data.session) window.location.href = '/index.html';
+  });
+
+  function showError(msg) {
+    const el = document.getElementById('auth-error');
+    el.textContent = msg; el.style.display = 'block';
+    document.getElementById('auth-success').style.display = 'none';
+  }
+  function showSuccessMsg(msg) {
+    const el = document.getElementById('auth-success');
+    el.textContent = msg; el.style.display = 'block';
+    document.getElementById('auth-error').style.display = 'none';
+  }
+  function clearMessages() {
+    document.getElementById('auth-error').style.display = 'none';
+    document.getElementById('auth-success').style.display = 'none';
+  }
+
+  function showSignup() {
+    clearMessages();
+    document.getElementById('form-login').style.display = 'none';
+    document.getElementById('form-signup').style.display = 'block';
+    document.getElementById('form-verify').style.display = 'none';
+    document.getElementById('auth-subtitle').textContent = 'Create your account';
+    document.getElementById('su-email').focus();
+  }
+  function showLogin() {
+    clearMessages();
+    document.getElementById('form-login').style.display = 'block';
+    document.getElementById('form-signup').style.display = 'none';
+    document.getElementById('form-verify').style.display = 'none';
+    document.getElementById('auth-subtitle').textContent = 'Sign in to your account';
+    document.getElementById('login-email').focus();
+  }
+
+  async function handleLogin() {
+    clearMessages();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!email || !password) { showError('Please fill in both fields.'); return; }
+    const btn = document.getElementById('btn-login');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) {
+      showError(error.message);
+      btn.disabled = false; btn.textContent = 'Sign In';
+    } else {
+      window.location.href = '/index.html';
+    }
+  }
+
+  async function handleSignup() {
+    clearMessages();
+    const email = document.getElementById('su-email').value.trim();
+    const password = document.getElementById('su-password').value;
+    const confirm = document.getElementById('su-confirm').value;
+    if (!email || !password || !confirm) { showError('Please fill in all fields.'); return; }
+    if (password !== confirm) { showError('Passwords do not match.'); return; }
+    if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
+    const btn = document.getElementById('btn-signup');
+    btn.disabled = true; btn.textContent = 'Creating account…';
+    const { error } = await sb.auth.signUp({ email, password });
+    if (error) {
+      showError(error.message);
+      btn.disabled = false; btn.textContent = 'Create Account';
+    } else {
+      document.getElementById('form-signup').style.display = 'none';
+      document.getElementById('form-verify').style.display = 'block';
+      document.getElementById('auth-subtitle').textContent = 'Almost there!';
+    }
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('form-login').style.display !== 'none') handleLogin();
+    else if (document.getElementById('form-signup').style.display !== 'none') handleSignup();
+  });
+</script>
+</body>
+</html>

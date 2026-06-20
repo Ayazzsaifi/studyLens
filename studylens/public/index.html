@@ -6,6 +6,10 @@
 <title>StudyLens — AI Study Platform</title>
 <link rel="stylesheet" href="styles.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- Supabase (must be before auth.js) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Auth guard: redirects to login.html if no session -->
+<script src="auth.js"></script>
 </head>
 <body>
 
@@ -21,11 +25,13 @@
     <button class="nav-item" data-page="tutor" onclick="UI.goto('tutor', this)">🧑‍🏫 AI Tutor</button>
     <button class="nav-item" data-page="pomo" onclick="UI.goto('pomo', this)">⏱ Pomodoro</button>
   </nav>
+  <!-- auth.js injects the user email + logout button here at the bottom -->
 </aside>
 
 <header class="topbar">
   <button class="hamburger" onclick="UI.toggleSidebar()">☰</button>
   <div class="topbar-title">StudyLens</div>
+  <!-- auth.js injects logout button here on mobile -->
 </header>
 
 <main class="main">

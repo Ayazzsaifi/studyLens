@@ -6,6 +6,7 @@
   ],
   "routes": [
     { "src": "/api/claude", "dest": "/api/claude.js" },
+    { "src": "/", "dest": "/public/login.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
